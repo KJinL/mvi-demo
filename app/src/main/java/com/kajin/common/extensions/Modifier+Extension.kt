@@ -13,7 +13,7 @@ import kotlinx.coroutines.delay
 /**
  * modifier点击事件防抖拓展函数
  * @param enabled 是否开启防抖
- * @param delay 防抖事件
+ * @param delay 防抖时间
  * @param onClick 点击事件
  */
 fun Modifier.clickableWithDebounce(
