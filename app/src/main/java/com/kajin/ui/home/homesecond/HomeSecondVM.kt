@@ -1,46 +1,67 @@
 package com.kajin.ui.home.homesecond
 
-import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.kajin.common.base.Container
+import com.kajin.common.extensions.containers
 import com.kajin.common.network.ApiResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class HomeSecondVM : ViewModel() {
-    val repository = HomeRepository()
 
-    // 创建 MutableState 对象
-    private val _pointInfoState: MutableState<String> = mutableStateOf("请求中")
+@HiltViewModel
+class HomeSecondVM @Inject constructor(
+    private val repository: HomeRepository,
+) : ViewModel() {
 
-    // 将 MutableState 对象公开为 State 对象
-    val pointInfoState: MutableState<String>
-        get() = _pointInfoState
+    /**
+     * 创建状态容器
+     */
+    private val _containerState by containers<HomeSecondDataState, HomeSecondSingleEvent>(
+        HomeSecondDataState.Success("")
+    )
+    val containerState: Container<HomeSecondDataState, HomeSecondSingleEvent> = _containerState
 
-    suspend fun getPointInfo() {
-        when (val callData = repository.getPointInfo()) {
-            is ApiResponse.BusinessError -> {
-                Log.e(
-                    "HomeRepository",
-                    "业务错误 ===> ${callData.response.msg}"
-                )
-                _pointInfoState.value = "业务错误${callData.response.msg}"
+    /**
+     * 事件分发
+     */
+    fun sendAction(action: HomeSecondAction) {
+        when (action) {
+            HomeSecondAction.GetPointInfo -> getPointInfo()
+        }
+    }
+
+    private fun getPointInfo() {
+        viewModelScope.launch {
+            _containerState.sendEvent(HomeSecondSingleEvent.Loading(true))
+            when (val callData = repository.getPointInfo()) {
+                is ApiResponse.BusinessError -> {
+                    _containerState.updateState {
+                        HomeSecondDataState.BusinessError("业务错误 ===> ${callData.response.msg}")
+                    }
+                }
+
+                is ApiResponse.NetworkError -> {
+                    _containerState.updateState {
+                        HomeSecondDataState.NetworkError("网络错误 ===> ")
+                    }
+                }
+
+                is ApiResponse.Success -> {
+                    _containerState.updateState {
+                        HomeSecondDataState.Success("请求成功 ===> ${callData.response.data}")
+                    }
+                }
             }
-
-            is ApiResponse.NetworkError -> {
-                Log.e(
-                    "HomeRepository",
-                    "网络错误 ===> ${callData.errMsg}"
-                )
-                _pointInfoState.value = "网络错误${callData.errMsg}"
-
-            }
-
-            is ApiResponse.Success -> {
-                val response = callData.response
-                Log.e("HomeRepository", "请求成功 ===> ${response.toString()}")
-                _pointInfoState.value = "请求成功${response}"
-            }
+            _containerState.sendEvent(HomeSecondSingleEvent.Loading(false))
         }
 
+    }
+
+    fun sendTips(s: String) {
+        viewModelScope.launch {
+            _containerState.sendEvent(HomeSecondSingleEvent.Tips(s))
+        }
     }
 }

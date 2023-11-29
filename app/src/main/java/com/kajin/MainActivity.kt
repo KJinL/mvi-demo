@@ -15,7 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import com.kajin.ui.components.NaviHostApp
 import com.kajin.ui.theme.AppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

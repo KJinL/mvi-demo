@@ -1,7 +1,6 @@
 package com.kajin.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -22,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kajin.R
+import com.kajin.common.extensions.clickableWithDebounce
 
 /**
  * 默认标题栏点击事件
@@ -80,7 +80,7 @@ fun DefaultTitleBar(
                     Text(
                         text = title,
                         style = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold),
-                        modifier = Modifier.clickable { onClick(TitleBarClickEvent.TitleClick) },
+                        modifier = Modifier.clickableWithDebounce { onClick(TitleBarClickEvent.TitleClick) },
                         textAlign = TextAlign.Center
                     )
                 }
@@ -99,7 +99,7 @@ fun DefaultTitleBar(
                                 Image(painter = painterResource(id = R.mipmap.ic_back_arrow),
                                     contentDescription = "返回",
                                     modifier = Modifier
-                                        .clickable { onClick(TitleBarClickEvent.LeftClick) }
+                                        .clickableWithDebounce { onClick(TitleBarClickEvent.LeftClick) }
                                         .width(9.71.dp)
                                         .height(16.98.dp))
                             }
